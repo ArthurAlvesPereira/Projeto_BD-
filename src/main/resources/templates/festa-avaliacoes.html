@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="|Avaliações - ${festa.nome}|">Avaliações da Festa</title>
+</head>
+<body>
+    <h1 th:text="|Avaliações para a festa: ${festa.nome}|">Avaliações da Festa</h1>
+
+    <div th:if="${avaliacoes.isEmpty()}">
+        <h3>Esta festa ainda não recebeu nenhuma avaliação.</h3>
+    </div>
+
+    <table th:if="${!avaliacoes.isEmpty()}">
+        <thead>
+            <tr>
+                <th>DJs/Som</th>
+                <th>Bebidas</th>
+                <th>Banheiros</th>
+                <th>Local</th>
+                <th>Organização</th>
+                <th>Comentário</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="avaliacao : ${avaliacoes}">
+                <td th:text="${avaliacao.notaDJs}"></td>
+                <td th:text="${avaliacao.notaBebidas}"></td>
+                <td th:text="${avaliacao.notaBanheiros}"></td>
+                <td th:text="${avaliacao.notaLocal}"></td>
+                <td th:text="${avaliacao.notaOrganizacao}"></td>
+                <td th:text="${avaliacao.comentario}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br>
+    <a href="/">Voltar para a Página Inicial</a>
+</body>
+</html>

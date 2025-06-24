@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Avaliar Festa</title>
+</head>
+<body>
+    <h1>Avaliar Festa: <span th:text="${festa.nome}">Nome da Festa</span></h1>
+
+    <form th:action="@{/avaliar/salvar}" th:object="${avaliacao}" method="post">
+        <input type="hidden" name="idFesta" th:value="${festa.id}" />
+        <input type="hidden" name="matricula" th:value="${matricula}" />
+
+        <p>Dê suas notas de 1 a 10:</p>
+        <div>
+            <label for="notaDJs">DJs / Som:</label>
+            <input type="number" id="notaDJs" th:field="*{notaDJs}" min="1" max="10" required>
+        </div>
+        <div>
+            <label for="notaBebidas">Bebidas:</label>
+            <input type="number" id="notaBebidas" th:field="*{notaBebidas}" min="1" max="10" required>
+        </div>
+        <div>
+            <label for="notaBanheiros">Banheiros:</label>
+            <input type="number" id="notaBanheiros" th:field="*{notaBanheiros}" min="1" max="10" required>
+        </div>
+        <div>
+            <label for="notaLocal">Local:</label>
+            <input type="number" id="notaLocal" th:field="*{notaLocal}" min="1" max="10" required>
+        </div>
+        <div>
+            <label for="notaOrganizacao">Organização:</label>
+            <input type="number" id="notaOrganizacao" th:field="*{notaOrganizacao}" min="1" max="10" required>
+        </div>
+        <div>
+            <label for="comentario">Comentário (opcional):</label>
+            <textarea id="comentario" th:field="*{comentario}" rows="4" cols="50"></textarea>
+        </div>
+        <button type="submit">Enviar Avaliação</button>
+    </form>
+</body>
+</html>

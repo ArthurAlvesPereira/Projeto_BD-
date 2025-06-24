@@ -9,7 +9,6 @@ public class Atletica {
     public Atletica(){
     }
 
-    // Construtor com parâmetros
     public Atletica(String cnpj, String nome, String sigla, String mascote) {
         this.cnpj = cnpj;
         this.nome = nome;
@@ -17,7 +16,6 @@ public class Atletica {
         this.mascote = mascote;
     }
 
-    // Getters e Setters
     public String getCnpj() {
         return cnpj;
     }

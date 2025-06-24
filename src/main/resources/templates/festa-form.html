@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Criar Nova Festa</title>
+    <style>
+        body { font-family: sans-serif; margin: 2em; }
+        form { border: 1px solid #ccc; padding: 1em; max-width: 500px; }
+        input, button { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+    <h1>Criar Nova Festa</h1>
+    <form th:action="@{/festas/salvar}" th:object="${festa}" method="post">
+        <input type="hidden" name="cnpjOrganizador" th:value="${cnpjOrganizador}" />
+
+        <div>
+            <label for="nome">Nome da Festa:</label>
+            <input type="text" id="nome" th:field="*{nome}" required>
+        </div>
+        <div>
+            <label for="horario">Data e Hora:</label>
+            <input type="datetime-local" id="horario" th:field="*{horario}" required>
+        </div>
+        <div>
+            <label for="tipoFesta">Tipo de Festa (Ex: Open Bar):</label>
+            <input type="text" id="tipoFesta" th:field="*{tipoFesta}" required>
+        </div>
+        <div>
+            <label for="local">Local:</label>
+            <input type="text" id="local" th:field="*{local}" required>
+        </div>
+        <button type="submit">Salvar Festa</button>
+    </form>
+</body>
+</html>

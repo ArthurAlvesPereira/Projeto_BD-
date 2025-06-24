@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciar Alunos</title>
+    <style>
+        body { font-family: sans-serif; margin: 2em; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #dddddd; text-align: left; padding: 8px; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        form { border: 1px solid #ccc; padding: 1em; margin-bottom: 2em; }
+        input { margin-bottom: 0.5em; }
+    </style>
+</head>
+<body>
+
+<h1>Gerenciamento de Alunos</h1>
+
+<form th:action="@{/admin/alunos}" th:object="${novoAluno}" method="post">
+    <h3>Novo Aluno</h3>
+    <div>
+        <label for="matricula">Matrícula:</label><br>
+        <input type="number" id="matricula" th:field="*{matricula}" required>
+    </div>
+    <div>
+        <label for="nome">Nome:</label><br>
+        <input type="text" id="nome" th:field="*{nome}" required>
+    </div>
+    <div>
+        <label for="codigoCurso_FK">Código do Curso (FK):</label><br>
+        <input type="text" id="codigoCurso_FK" th:field="*{codigoCurso_FK}" required>
+        <small>Atenção: O código do curso deve existir na tabela de Cursos.</small>
+    </div>
+    <button type="submit">Salvar Aluno</button>
+</form>
+
+<hr>
+
+<h2>Alunos Cadastrados</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Matrícula</th>
+        <th>Nome</th>
+        <th>Código do Curso</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="aluno : ${listaAlunos}">
+        <td th:text="${aluno.matricula}">2025001</td>
+        <td th:text="${aluno.nome}">Nome do Aluno</td>
+        <td th:text="${aluno.codigoCurso_FK}">CCO01</td>
+    </tr>
+    </tbody>
+</table>
+
+<br>
+<a href="/">Voltar para a página inicial</a>
+
+</body>
+</html>

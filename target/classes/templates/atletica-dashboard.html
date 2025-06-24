@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="|Dashboard - ${atletica.nome}|">Dashboard da Atlética</title>
+</head>
+<body>
+    <h1 th:text="|Bem-vinda, ${atletica.nome}!|">Dashboard</h1>
+    <p th:text="|CNPJ: ${atletica.cnpj}|">CNPJ</p>
+
+    <hr>
+    <h2>Gerenciar Festas</h2>
+    <a th:href="@{/festas/nova/{cnpj}(cnpj=${atletica.cnpj})}">
+        <button>Criar Nova Festa</button>
+    </a>
+
+<hr>
+<h2>Festas Organizadas</h2>
+
+<div th:if="${festasDaAtletica.isEmpty()}">
+    <p>Nenhuma festa criada ainda.</p>
+</div>
+
+<table th:if="${!festasDaAtletica.isEmpty()}">
+    <thead>
+        <tr>
+            <th>Nome da Festa</th>
+            <th>Data</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="festa : ${festasDaAtletica}">
+            <td th:text="${festa.nome}">Nome da Festa</td>
+            <td th:text="${#temporals.format(festa.horario, 'dd/MM/yyyy')}">Data</td>
+            <td>
+                <a th:href="@{/avaliacoes/festa/{idFesta}(idFesta=${festa.getId()})}">Ver Avaliações</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+</body>
+</html>
