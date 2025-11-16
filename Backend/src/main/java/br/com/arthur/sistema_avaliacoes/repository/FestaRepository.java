@@ -76,4 +76,18 @@ public class FestaRepository {
         return jdbcTemplate.query(sql, new FestaRowMapper(), cnpj);
     }
 
+    public void deletar(int idFesta) {
+        // Primeiro deleta da tabela intermediária
+        String sqlOrganizador = "DELETE FROM Festa_Organizador_Atletica WHERE ID_Festa_FK = ?";
+        jdbcTemplate.update(sqlOrganizador, idFesta);
+
+        // Depois deleta as avaliações (se houver)
+        String sqlAvaliacoes = "DELETE FROM Avaliacao WHERE ID_Festa_FK = ?";
+        jdbcTemplate.update(sqlAvaliacoes, idFesta);
+
+        // Por fim, deleta a festa
+        String sqlFesta = "DELETE FROM Festa WHERE ID_Festa = ?";
+        jdbcTemplate.update(sqlFesta, idFesta);
+    }
+
 }
