@@ -1,4 +1,5 @@
 export interface Curso {
-  codigo: string;
+  codigoCurso: string;
   nomeCurso: string;
+  cnpjAtleticaFK?: string;
 }

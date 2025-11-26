@@ -13,15 +13,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { useFesta } from "../hooks/useFesta";
 import type { NovaFesta } from "../types/festa";
 
-const TIPOS_FESTA = [
-  "Open Bar",
-  "Temática",
-  "Sertanejo",
-  "Eletrônica",
-  "Pagode",
-  "Rock",
-  "Outro",
-];
+const TIPOS_FESTA = ["Open Bar", "Venda de Bebidas", "Open Cooler", "Mista"];
 
 export default function NovaFestaPage() {
   const navigate = useNavigate();

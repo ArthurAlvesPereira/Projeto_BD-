@@ -103,8 +103,8 @@ export default function Admin() {
                 </TableHead>
                 <TableBody>
                   {cursos.map((curso) => (
-                    <TableRow key={curso.codigo}>
-                      <TableCell>{curso.codigo}</TableCell>
+                    <TableRow key={curso.codigoCurso}>
+                      <TableCell>{curso.codigoCurso}</TableCell>
                       <TableCell>{curso.nomeCurso}</TableCell>
                     </TableRow>
                   ))}
