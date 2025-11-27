@@ -47,7 +47,6 @@ public class FestaRepository {
             Festa festa = new Festa();
             festa.setId(rs.getInt("ID_Festa"));
             festa.setNome(rs.getString("Nome"));
-            // Importante: converter o Timestamp do banco para LocalDateTime do Java
             festa.setHorario(rs.getTimestamp("Horario").toLocalDateTime());
             festa.setTipoFesta(rs.getString("TipoFesta"));
             festa.setLocal(rs.getString("Local"));
@@ -57,7 +56,7 @@ public class FestaRepository {
 
     // Método para buscar todas as festas
     public List<Festa> listarTodas() {
-        String sql = "SELECT * FROM Festa ORDER BY Horario ASC"; // Ordena as festas por data
+        String sql = "SELECT * FROM Festa ORDER BY Horario ASC"; 
         return jdbcTemplate.query(sql, new FestaRowMapper());
     }
 
@@ -77,15 +76,12 @@ public class FestaRepository {
     }
 
     public void deletar(int idFesta) {
-        // Primeiro deleta da tabela intermediária
         String sqlOrganizador = "DELETE FROM Festa_Organizador_Atletica WHERE ID_Festa_FK = ?";
         jdbcTemplate.update(sqlOrganizador, idFesta);
 
-        // Depois deleta as avaliações (se houver)
         String sqlAvaliacoes = "DELETE FROM Avaliacao WHERE ID_Festa_FK = ?";
         jdbcTemplate.update(sqlAvaliacoes, idFesta);
 
-        // Por fim, deleta a festa
         String sqlFesta = "DELETE FROM Festa WHERE ID_Festa = ?";
         jdbcTemplate.update(sqlFesta, idFesta);
     }

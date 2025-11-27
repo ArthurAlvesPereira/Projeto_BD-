@@ -35,7 +35,7 @@ public class RelatorioRepository {
             FROM Festa f
             INNER JOIN Avaliacao av ON f.ID_Festa = av.ID_Festa_FK
             GROUP BY f.ID_Festa, f.Nome, f.TipoFesta, f.Local, f.Horario
-            HAVING COUNT(av.ID_Avaliacao) >= 3
+            HAVING COUNT(av.ID_Avaliacao) >= 1
             ORDER BY MediaGeral DESC
             LIMIT ?
         """;

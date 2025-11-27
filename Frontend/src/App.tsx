@@ -6,6 +6,8 @@ import Festas from "./pages/Festas";
 import AvaliarFesta from "./pages/AvaliarFesta";
 import AvaliacoesFesta from "./pages/AvaliacoesFesta";
 import Admin from "./pages/Admin";
+import RelatoriosIndividuais from "./pages/RelatoriosIndividuais";
+import RelatoriosGerais from "./pages/RelatoriosGerais";
 import Layout from "./components/Layout";
 
 function App() {
@@ -22,6 +24,8 @@ function App() {
           <Route path="/festas/:id/avaliar" element={<AvaliarFesta />} />
           <Route path="/festas/:id/avaliacoes" element={<AvaliacoesFesta />} />
           <Route path="/nova-festa" element={<NovaFesta />} />
+          <Route path="/relatorios" element={<RelatoriosIndividuais />} />
+          <Route path="/relatorios-gerais" element={<RelatoriosGerais />} />
         </Route>
       </Routes>
     </BrowserRouter>

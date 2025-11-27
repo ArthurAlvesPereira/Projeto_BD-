@@ -41,7 +41,6 @@ export default function AvaliarFesta() {
         const festaData = await buscarPorId(Number.parseInt(id));
         setFesta(festaData);
 
-        // Verifica se a festa já ocorreu
         if (festaData && new Date(festaData.horario) > new Date()) {
           setErro(
             "Esta festa ainda não ocorreu. Você só pode avaliar festas que já aconteceram."
@@ -60,7 +59,6 @@ export default function AvaliarFesta() {
 
     if (!aluno || !id || !festa) return;
 
-    // Verifica novamente se a festa já ocorreu
     if (new Date(festa.horario) > new Date()) {
       setErro(
         "Esta festa ainda não ocorreu. Você só pode avaliar festas que já aconteceram."
