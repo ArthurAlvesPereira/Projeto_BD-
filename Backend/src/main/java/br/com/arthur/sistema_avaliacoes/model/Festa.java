@@ -1,6 +1,8 @@
 package br.com.arthur.sistema_avaliacoes.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Festa {
 
@@ -9,6 +11,8 @@ public class Festa {
     private LocalDateTime horario;
     private String tipoFesta;
     private String local;
+    
+    private List<Questao> questoes = new ArrayList<>();
 
   
     public Festa() {}
@@ -29,4 +33,7 @@ public class Festa {
     public void setTipoFesta(String tipoFesta) { this.tipoFesta = tipoFesta; }
     public String getLocal() { return local; }
     public void setLocal(String local) { this.local = local; }
+    
+    public List<Questao> getQuestoes() { return questoes; }
+    public void setQuestoes(List<Questao> questoes) { this.questoes = questoes; }
 }

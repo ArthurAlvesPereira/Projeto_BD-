@@ -1,10 +1,15 @@
 package br.com.arthur.sistema_avaliacoes.repository;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import org.springframework.jdbc.core.RowMapper;
 
+import br.com.arthur.sistema_avaliacoes.model.Resposta;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -18,48 +23,55 @@ public class AvaliacaoRepository {
     private JdbcTemplate jdbcTemplate;
 
     public boolean alunoJaAvaliou(int matricula, int idFesta) {
-        String sql = "SELECT COUNT(*) FROM Aluno_Avaliou_Festa WHERE Matricula_Aluno_FK = ? AND ID_Festa_FK = ?";
+        String sql = "SELECT COUNT(*) FROM Avaliacao WHERE Matricula_Aluno_FK = ? AND ID_Festa_FK = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, matricula, idFesta);
         return count != null && count > 0;
     }
 
     @Transactional
-    public void salvar(Avaliacao avaliacao, int idFesta, String codigoCurso, int matricula) {
+    public void salvar(Avaliacao avaliacao) {
+        String sqlAvaliacao = "INSERT INTO Avaliacao (ID_Festa_FK, Matricula_Aluno_FK, Comentario_Geral) VALUES (?, ?, ?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        String sqlAvaliacao = "INSERT INTO Avaliacao (ID_Festa_FK, CodigoCurso_FK, Nota_DJs, Nota_Bebidas, Nota_Banheiros, Nota_Local, Nota_Organizacao, Comentario) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sqlAvaliacao,
-                idFesta,
-                codigoCurso,
-                avaliacao.getNotaDJs(),
-                avaliacao.getNotaBebidas(),
-                avaliacao.getNotaBanheiros(),
-                avaliacao.getNotaLocal(),
-                avaliacao.getNotaOrganizacao(),
-                avaliacao.getComentario());
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sqlAvaliacao, Statement.RETURN_GENERATED_KEYS);
+            ps.setInt(1, avaliacao.getIdFesta());
+            ps.setInt(2, avaliacao.getMatriculaAluno());
+            ps.setString(3, avaliacao.getComentarioGeral());
+            return ps;
+        }, keyHolder);
 
+        int idAvaliacao = (int) keyHolder.getKeys().get("ID_Avaliacao");
 
-        String sqlRegistroVoto = "INSERT INTO Aluno_Avaliou_Festa (Matricula_Aluno_FK, ID_Festa_FK) VALUES (?, ?)";
-        jdbcTemplate.update(sqlRegistroVoto, matricula, idFesta);
+        // 2. Inserir Respostas
+        String sqlResposta = "INSERT INTO Resposta (ID_Avaliacao_FK, ID_Questao_FK, Valor_Numerico, Valor_Texto) VALUES (?, ?, ?, ?)";
+        
+        if (avaliacao.getRespostas() != null) {
+            for (Resposta resp : avaliacao.getRespostas()) {
+                jdbcTemplate.update(sqlResposta,
+                        idAvaliacao,
+                        resp.getIdQuestao(),
+                        resp.getValorNumerico(),
+                        resp.getValorTexto());
+            }
+        }
+    }
+
+    public List<Avaliacao> findByFestaId(int idFesta) {
+        String sql = "SELECT * FROM Avaliacao WHERE ID_Festa_FK = ?";
+        return jdbcTemplate.query(sql, new AvaliacaoRowMapper(), idFesta);
     }
 
     private static class AvaliacaoRowMapper implements RowMapper<Avaliacao> {
-    @Override
-    public Avaliacao mapRow(ResultSet rs, int rowNum) throws SQLException {
-        Avaliacao avaliacao = new Avaliacao();
-
-        avaliacao.setNotaDJs(rs.getInt("Nota_DJs"));
-        avaliacao.setNotaBebidas(rs.getInt("Nota_Bebidas"));
-        avaliacao.setNotaBanheiros(rs.getInt("Nota_Banheiros"));
-        avaliacao.setNotaLocal(rs.getInt("Nota_Local"));
-        avaliacao.setNotaOrganizacao(rs.getInt("Nota_Organizacao"));
-        avaliacao.setComentario(rs.getString("Comentario"));
-        return avaliacao;
+        @Override
+        public Avaliacao mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Avaliacao avaliacao = new Avaliacao();
+            avaliacao.setIdAvaliacao(rs.getInt("ID_Avaliacao"));
+            avaliacao.setIdFesta(rs.getInt("ID_Festa_FK"));
+            avaliacao.setMatriculaAluno(rs.getInt("Matricula_Aluno_FK"));
+            avaliacao.setComentarioGeral(rs.getString("Comentario_Geral"));
+            avaliacao.setDataHoraAvaliacao(rs.getTimestamp("DataHoraAvaliacao").toLocalDateTime());
+            return avaliacao;
+        }
     }
-}
-
-
-public List<Avaliacao> findByFestaId(int idFesta) {
-    String sql = "SELECT * FROM Avaliacao WHERE ID_Festa_FK = ?";
-    return jdbcTemplate.query(sql, new AvaliacaoRowMapper(), idFesta);
-}
 }

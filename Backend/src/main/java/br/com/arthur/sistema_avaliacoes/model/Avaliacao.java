@@ -1,61 +1,66 @@
 package br.com.arthur.sistema_avaliacoes.model;
 
-public class Avaliacao {
-    private int notaDJs;
-    private int notaBebidas;
-    private int notaBanheiros;
-    private int notaLocal;
-    private int notaOrganizacao;
-    private String comentario;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.ArrayList;
 
+public class Avaliacao {
+    private int idAvaliacao;
+    private int idFesta;
+    private int matriculaAluno;
+    private String comentarioGeral;
+    private LocalDateTime dataHoraAvaliacao;
+    
+    private List<Resposta> respostas = new ArrayList<>();
 
     public Avaliacao() {
     }
 
-    public int getNotaDJs() {
-        return notaDJs;
-    }
-    public void setNotaDJs(int notaDJs) {
-        this.notaDJs = notaDJs;
+    public int getIdAvaliacao() {
+        return idAvaliacao;
     }
 
-    public int getNotaBebidas() {
-        return notaBebidas;
+    public void setIdAvaliacao(int idAvaliacao) {
+        this.idAvaliacao = idAvaliacao;
     }
 
-    public void setNotaBebidas(int notaBebidas) {
-        this.notaBebidas = notaBebidas;
+    public int getIdFesta() {
+        return idFesta;
     }
 
-    public int getNotaBanheiros() {
-        return notaBanheiros;
+    public void setIdFesta(int idFesta) {
+        this.idFesta = idFesta;
     }
 
-    public void setNotaBanheiros(int notaBanheiros) {
-        this.notaBanheiros = notaBanheiros;
+    public int getMatriculaAluno() {
+        return matriculaAluno;
     }
 
-    public int getNotaLocal() {
-        return notaLocal;
+    public void setMatriculaAluno(int matriculaAluno) {
+        this.matriculaAluno = matriculaAluno;
     }
 
-    public void setNotaLocal(int notaLocal) {
-        this.notaLocal = notaLocal;
+    public String getComentarioGeral() {
+        return comentarioGeral;
     }
 
-    public int getNotaOrganizacao() {
-        return notaOrganizacao;
+    public void setComentarioGeral(String comentarioGeral) {
+        this.comentarioGeral = comentarioGeral;
     }
 
-    public void setNotaOrganizacao(int notaOrganizacao) {
-        this.notaOrganizacao = notaOrganizacao;
+    public LocalDateTime getDataHoraAvaliacao() {
+        return dataHoraAvaliacao;
     }
 
-    public String getComentario() {
-        return comentario;
+    public void setDataHoraAvaliacao(LocalDateTime dataHoraAvaliacao) {
+        this.dataHoraAvaliacao = dataHoraAvaliacao;
     }
 
-    public void setComentario(String comentario) {
-        this.comentario = comentario;
+    public List<Resposta> getRespostas() {
+        return respostas;
+    }
+
+    public void setRespostas(List<Resposta> respostas) {
+        this.respostas = respostas;
     }
 }

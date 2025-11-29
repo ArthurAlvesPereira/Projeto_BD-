@@ -64,8 +64,9 @@ public class AvaliacaoRestController {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
-        String codigoCurso = alunoRepository.findCursoByMatricula(matricula);
-        avaliacaoRepository.salvar(avaliacao, idFesta, codigoCurso, matricula);
+        avaliacao.setIdFesta(idFesta);
+        avaliacao.setMatriculaAluno(matricula);
+        avaliacaoRepository.salvar(avaliacao);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

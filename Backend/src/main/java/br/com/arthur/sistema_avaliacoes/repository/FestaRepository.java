@@ -1,11 +1,14 @@
 package br.com.arthur.sistema_avaliacoes.repository;
 
 import br.com.arthur.sistema_avaliacoes.model.Festa;
+import br.com.arthur.sistema_avaliacoes.model.Questao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,14 +17,13 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.List;
 
-import org.springframework.jdbc.core.RowMapper;
-
 @Repository
 public class FestaRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Transactional
     public void salvar(Festa festa, String cnpjOrganizador) {
         String sqlFesta = "INSERT INTO Festa (Nome, Horario, TipoFesta, Local) VALUES (?, ?, ?, ?)";
 
@@ -39,6 +41,13 @@ public class FestaRepository {
         int idFestaGerado = ((Number) keyHolder.getKeys().get("id_festa")).intValue();
         String sqlOrganizador = "INSERT INTO Festa_Organizador_Atletica (ID_Festa_FK, CNPJ_Atletica_FK) VALUES (?, ?)";
         jdbcTemplate.update(sqlOrganizador, idFestaGerado, cnpjOrganizador);
+        
+        if (festa.getQuestoes() != null) {
+            String sqlQuestao = "INSERT INTO Festa_Questao (ID_Festa_FK, ID_Questao_FK) VALUES (?, ?)";
+            for (Questao q : festa.getQuestoes()) {
+                jdbcTemplate.update(sqlQuestao, idFestaGerado, q.getIdQuestao());
+            }
+        }
     }
 
     private static class FestaRowMapper implements RowMapper<Festa> {
@@ -54,24 +63,35 @@ public class FestaRepository {
         }
     }
 
-    // Método para buscar todas as festas
     public List<Festa> listarTodas() {
         String sql = "SELECT * FROM Festa ORDER BY Horario ASC"; 
         return jdbcTemplate.query(sql, new FestaRowMapper());
     }
 
-
     public Festa findById(int idFesta) {
         String sql = "SELECT * FROM Festa WHERE ID_Festa = ?";
-        return jdbcTemplate.queryForObject(sql, new FestaRowMapper(), idFesta);
+        Festa festa = jdbcTemplate.queryForObject(sql, new FestaRowMapper(), idFesta);
+        
+        if (festa != null) {
+            String sqlQuestoes = "SELECT q.* FROM Questao q " +
+                                 "JOIN Festa_Questao fq ON q.ID_Questao = fq.ID_Questao_FK " +
+                                 "WHERE fq.ID_Festa_FK = ?";
+            List<Questao> questoes = jdbcTemplate.query(sqlQuestoes, (rs, rowNum) -> {
+                Questao q = new Questao();
+                q.setIdQuestao(rs.getInt("ID_Questao"));
+                q.setEnunciado(rs.getString("Enunciado"));
+                q.setTipo(rs.getString("Tipo"));
+                return q;
+            }, idFesta);
+            festa.setQuestoes(questoes);
+        }
+        return festa;
     }
 
     public List<Festa> findByOrganizador(String cnpj) {
-
         String sql = "SELECT f.* FROM Festa f " +
                 "JOIN Festa_Organizador_Atletica foa ON f.ID_Festa = foa.ID_Festa_FK " +
                 "WHERE foa.CNPJ_Atletica_FK = ?";
-
         return jdbcTemplate.query(sql, new FestaRowMapper(), cnpj);
     }
 
@@ -85,5 +105,4 @@ public class FestaRepository {
         String sqlFesta = "DELETE FROM Festa WHERE ID_Festa = ?";
         jdbcTemplate.update(sqlFesta, idFesta);
     }
-
 }
