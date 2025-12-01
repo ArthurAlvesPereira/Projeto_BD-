@@ -59,7 +59,38 @@ public class AvaliacaoRepository {
 
     public List<Avaliacao> findByFestaId(int idFesta) {
         String sql = "SELECT * FROM Avaliacao WHERE ID_Festa_FK = ?";
-        return jdbcTemplate.query(sql, new AvaliacaoRowMapper(), idFesta);
+        List<Avaliacao> avaliacoes = jdbcTemplate.query(sql, new AvaliacaoRowMapper(), idFesta);
+        
+        for (Avaliacao avaliacao : avaliacoes) {
+            List<Resposta> respostas = buscarRespostasPorAvaliacao(avaliacao.getIdAvaliacao());
+            avaliacao.setRespostas(respostas);
+        }
+        
+        return avaliacoes;
+    }
+    
+    private List<Resposta> buscarRespostasPorAvaliacao(int idAvaliacao) {
+        String sql = "SELECT * FROM Resposta WHERE ID_Avaliacao_FK = ?";
+        return jdbcTemplate.query(sql, new RespostaRowMapper(), idAvaliacao);
+    }
+    
+    private static class RespostaRowMapper implements RowMapper<Resposta> {
+        @Override
+        public Resposta mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Resposta resposta = new Resposta();
+            resposta.setIdResposta(rs.getInt("ID_Resposta"));
+            resposta.setIdAvaliacao(rs.getInt("ID_Avaliacao_FK"));
+            resposta.setIdQuestao(rs.getInt("ID_Questao_FK"));
+            
+            // Verifica se o valor numérico não é null
+            Object valorNumerico = rs.getObject("Valor_Numerico");
+            if (valorNumerico != null) {
+                resposta.setValorNumerico(rs.getInt("Valor_Numerico"));
+            }
+            
+            resposta.setValorTexto(rs.getString("Valor_Texto"));
+            return resposta;
+        }
     }
 
     private static class AvaliacaoRowMapper implements RowMapper<Avaliacao> {

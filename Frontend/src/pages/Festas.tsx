@@ -11,7 +11,7 @@ export default function Festas() {
   const { listarTodas, loading } = useFesta();
   const { userType } = useAuthStore();
   const [festas, setFestas] = useState<Festa[]>([]);
-  const [tabValue, setTabValue] = useState(0);
+  const [tabValue, setTabValue] = useState(1);
 
   const tipoUsuario = userType === "atletica" ? "atletica" : "aluno";
 

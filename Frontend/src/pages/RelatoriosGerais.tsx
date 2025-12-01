@@ -126,9 +126,6 @@ export default function RelatoriosGerais() {
     }
     return 0;
   };
-
-  const obterTotalFestas = (atletica: RankingAtletica) =>
-    atletica.totalFestas || atletica.totalfestasrealizadas || 0;
   const obterNomeCurso = (curso: DistribuicaoCursos) =>
     curso.curso || curso.codigocurso || "";
   const obterMediaCategoria = (categoria: ComparacaoCategoria) =>
@@ -300,14 +297,14 @@ export default function RelatoriosGerais() {
                       <TableCell>{atletica.nome}</TableCell>
                       <TableCell>{atletica.sigla}</TableCell>
                       <TableCell align="center">
-                        {obterTotalFestas(atletica)}
+                        {atletica.totalfestasrealizadas}
                       </TableCell>
                       <TableCell align="center">
-                        {obterTotalAvaliacoes(atletica)}
+                        {atletica.totalavaliacoes}
                       </TableCell>
                       <TableCell align="center">
                         <Chip
-                          label={obterMediaGeral(atletica).toFixed(2)}
+                          label={atletica.mediageralfestas?.toFixed(2) || "N/A"}
                           color="success"
                           size="small"
                         />

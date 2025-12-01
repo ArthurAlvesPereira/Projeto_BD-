@@ -11,6 +11,7 @@ import RelatoriosIndividuais from "./pages/RelatoriosIndividuais";
 import RelatoriosGerais from "./pages/RelatoriosGerais";
 import Layout from "./components/Layout";
 import AdminQuestoes from "./pages/AdminQuestoes";
+import NovaQuestao from "./pages/NovaQuestao";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path="/nova-festa" element={<NovaFesta />} />
           <Route path="/editar-festa/:id" element={<EditarFesta />} />
           <Route path="/questoes" element={<AdminQuestoes />} />
+          <Route path="/admin/novaquestao" element={<NovaQuestao />} />
           <Route path="/relatorios" element={<RelatoriosIndividuais />} />
           <Route path="/relatorios-gerais" element={<RelatoriosGerais />} />
         </Route>

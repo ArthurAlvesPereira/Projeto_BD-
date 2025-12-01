@@ -380,7 +380,7 @@ export default function RelatoriosIndividuais() {
                   <Divider sx={{ my: 2 }} />
 
                   <Grid container spacing={3}>
-                    <Grid size={{ xs: 12, md: 6 }}>
+                    <Grid size={{ xs: 12 }}>
                       <Typography variant="subtitle2" gutterBottom>
                         Avaliações por Categoria
                       </Typography>
@@ -422,49 +422,6 @@ export default function RelatoriosIndividuais() {
                           margin={{ left: 100 }}
                         />
                       </Box>
-                    </Grid>
-
-                    <Grid size={{ xs: 12, md: 6 }}>
-                      <Typography variant="subtitle2" gutterBottom>
-                        Participação por Curso
-                      </Typography>
-                      <TableContainer>
-                        <Table size="small">
-                          <TableHead>
-                            <TableRow>
-                              <TableCell>Curso</TableCell>
-                              <TableCell align="right">Avaliações</TableCell>
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {stats.distribuicaoCursos &&
-                            stats.distribuicaoCursos.length > 0 ? (
-                              [...stats.distribuicaoCursos]
-                                .sort((a, b) => b.quantidade - a.quantidade)
-                                .slice(0, 5)
-                                .map((curso) => (
-                                  <TableRow key={`${festa.id}-${curso.curso}`}>
-                                    <TableCell>{curso.curso}</TableCell>
-                                    <TableCell align="right">
-                                      {curso.quantidade}
-                                    </TableCell>
-                                  </TableRow>
-                                ))
-                            ) : (
-                              <TableRow>
-                                <TableCell colSpan={2} align="center">
-                                  <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                  >
-                                    Sem dados de distribuição por curso
-                                  </Typography>
-                                </TableCell>
-                              </TableRow>
-                            )}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
                     </Grid>
                   </Grid>
 
