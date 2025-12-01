@@ -9,12 +9,13 @@ import {
   Stack,
   Alert,
   CircularProgress,
+  Divider,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAvaliacao } from "../hooks/useAvaliacao";
 import { useFesta } from "../hooks/useFesta";
 import { useAuthStore } from "../store/useAuthStore";
-import type { NovaAvaliacao } from "../types/avaliacao";
+import type { NovaAvaliacao, Resposta } from "../types/avaliacao";
 import type { Festa } from "../types/festa";
 
 export default function AvaliarFesta() {
@@ -27,12 +28,8 @@ export default function AvaliarFesta() {
   const [erro, setErro] = useState<string | null>(null);
   const [festa, setFesta] = useState<Festa | null>(null);
   const [avaliacao, setAvaliacao] = useState<NovaAvaliacao>({
-    notaDJs: 0,
-    notaBebidas: 0,
-    notaBanheiros: 0,
-    notaLocal: 0,
-    notaOrganizacao: 0,
-    comentario: "",
+    comentarioGeral: "",
+    respostas: [],
   });
 
   useEffect(() => {
@@ -41,10 +38,23 @@ export default function AvaliarFesta() {
         const festaData = await buscarPorId(Number.parseInt(id));
         setFesta(festaData);
 
-        if (festaData && new Date(festaData.horario) > new Date()) {
-          setErro(
-            "Esta festa ainda não ocorreu. Você só pode avaliar festas que já aconteceram."
+        if (festaData) {
+          // Inicializar respostas vazias para cada questão
+          const respostasIniciais: Resposta[] = (festaData.questoes || []).map(
+            (q) => ({
+              idQuestao: q.idQuestao,
+              valorNumerico: 0,
+              valorTexto: "",
+              enunciado: q.enunciado, // Auxiliar para renderização se necessário
+            })
           );
+          setAvaliacao((prev) => ({ ...prev, respostas: respostasIniciais }));
+
+          if (new Date(festaData.horario) > new Date()) {
+            setErro(
+              "Esta festa ainda não ocorreu. Você só pode avaliar festas que já aconteceram."
+            );
+          }
         }
       }
     };
@@ -52,6 +62,19 @@ export default function AvaliarFesta() {
     carregarFesta();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  const handleRespostaChange = (
+    idQuestao: number,
+    field: "valorNumerico" | "valorTexto",
+    value: number | string
+  ) => {
+    setAvaliacao((prev) => ({
+      ...prev,
+      respostas: prev.respostas.map((r) =>
+        r.idQuestao === idQuestao ? { ...r, [field]: value } : r
+      ),
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,7 +113,7 @@ export default function AvaliarFesta() {
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
-        Avaliar Festa
+        Avaliar Festa: {festa?.nome}
       </Typography>
 
       {erro && (
@@ -102,68 +125,81 @@ export default function AvaliarFesta() {
       <Paper sx={{ p: 3, maxWidth: 600 }}>
         <form onSubmit={handleSubmit}>
           <Stack spacing={3}>
-            <Box>
-              <Typography component="legend">DJs</Typography>
-              <Rating
-                value={avaliacao.notaDJs}
-                onChange={(_, value) =>
-                  setAvaliacao({ ...avaliacao, notaDJs: value || 0 })
-                }
-                size="large"
-              />
-            </Box>
+            {festa?.questoes?.map((questao) => {
+              const resposta = avaliacao.respostas.find(
+                (r) => r.idQuestao === questao.idQuestao
+              );
+              if (!resposta) return null;
 
-            <Box>
-              <Typography component="legend">Bebidas</Typography>
-              <Rating
-                value={avaliacao.notaBebidas}
-                onChange={(_, value) =>
-                  setAvaliacao({ ...avaliacao, notaBebidas: value || 0 })
-                }
-                size="large"
-              />
-            </Box>
+              return (
+                <Box key={questao.idQuestao}>
+                  <Typography component="legend" gutterBottom>
+                    {questao.enunciado}
+                  </Typography>
 
-            <Box>
-              <Typography component="legend">Banheiros</Typography>
-              <Rating
-                value={avaliacao.notaBanheiros}
-                onChange={(_, value) =>
-                  setAvaliacao({ ...avaliacao, notaBanheiros: value || 0 })
-                }
-                size="large"
-              />
-            </Box>
+                  {questao.tipo === "NOTA" && (
+                    <Rating
+                      value={resposta.valorNumerico || 0}
+                      onChange={(_, value) =>
+                        handleRespostaChange(
+                          questao.idQuestao,
+                          "valorNumerico",
+                          value || 0
+                        )
+                      }
+                      size="large"
+                    />
+                  )}
 
-            <Box>
-              <Typography component="legend">Local</Typography>
-              <Rating
-                value={avaliacao.notaLocal}
-                onChange={(_, value) =>
-                  setAvaliacao({ ...avaliacao, notaLocal: value || 0 })
-                }
-                size="large"
-              />
-            </Box>
+                  {questao.tipo === "TEXTO" && (
+                    <TextField
+                      multiline
+                      rows={3}
+                      fullWidth
+                      value={resposta.valorTexto || ""}
+                      onChange={(e) =>
+                        handleRespostaChange(
+                          questao.idQuestao,
+                          "valorTexto",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Sua resposta..."
+                    />
+                  )}
 
-            <Box>
-              <Typography component="legend">Organização</Typography>
-              <Rating
-                value={avaliacao.notaOrganizacao}
-                onChange={(_, value) =>
-                  setAvaliacao({ ...avaliacao, notaOrganizacao: value || 0 })
-                }
-                size="large"
-              />
-            </Box>
+                  {questao.tipo === "MULTIPLA_ESCOLHA" && (
+                    <TextField
+                      fullWidth
+                      value={resposta.valorTexto || ""}
+                      onChange={(e) =>
+                        handleRespostaChange(
+                          questao.idQuestao,
+                          "valorTexto",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Digite sua escolha"
+                    />
+                  )}
+                  <Divider sx={{ mt: 2 }} />
+                </Box>
+              );
+            })}
+
+            {(!festa?.questoes || festa.questoes.length === 0) && (
+              <Typography color="text.secondary">
+                Esta festa não possui perguntas específicas configuradas.
+              </Typography>
+            )}
 
             <TextField
-              label="Comentário"
+              label="Comentário Geral (Opcional)"
               multiline
               rows={4}
-              value={avaliacao.comentario}
+              value={avaliacao.comentarioGeral}
               onChange={(e) =>
-                setAvaliacao({ ...avaliacao, comentario: e.target.value })
+                setAvaliacao({ ...avaliacao, comentarioGeral: e.target.value })
               }
               fullWidth
             />

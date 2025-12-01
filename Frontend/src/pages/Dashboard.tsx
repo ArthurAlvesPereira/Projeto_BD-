@@ -179,7 +179,7 @@ export default function Dashboard() {
                     onVerAvaliacoes={(id) =>
                       navigate(`/festas/${id}/avaliacoes`)
                     }
-                    onEditar={(id) => console.log(`Editar festa ${id}`)}
+                    onEditar={(id) => navigate(`/editar-festa/${id}`)}
                     onDeletar={(id) => setFestaParaDeletar(id)}
                   />
                 </Grid>

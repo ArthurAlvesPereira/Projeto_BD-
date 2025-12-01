@@ -48,6 +48,10 @@ export interface RankingFesta {
   mediaGeral?: number;
   mediageral?: number;
   totalAvaliacoes?: number;
+  organizadorNome?: string;
+  totalavaliacoes?: number;
+}
+
 export interface RankingAtletica {
   cnpj?: string;
   nome?: string;
@@ -58,13 +62,6 @@ export interface RankingAtletica {
   totalfestasrealizadas?: number;
   totalAvaliacoes?: number;
   totalavaliacoes?: number;
-}xport interface RankingAtletica {
-  cnpj: string;
-  nome: string;
-  sigla: string;
-  mediaGeral: number;
-  totalFestas: number;
-  totalAvaliacoes: number;
 }
 
 export interface DistribuicaoCursos {
@@ -108,6 +105,11 @@ export interface TendenciaTemporal {
   periodo: string;
   quantidadeAvaliacoes: number;
   mediaGeral: number;
+  // Campos alternativos
+  mes?: string;
+  ano?: number;
+  mediaperiodo?: number;
+  mediageral?: number;
 }
 
 export interface MaiorParticipacao {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -10,32 +10,45 @@ import {
   TableHead,
   TableRow,
   Rating,
-  Chip,
   CircularProgress,
   Button,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAvaliacao } from "../hooks/useAvaliacao";
 import { useFesta } from "../hooks/useFesta";
+import { useQuestao } from "../hooks/useQuestao";
 import type { Avaliacao } from "../types/avaliacao";
 import type { Festa } from "../types/festa";
+import type { Questao } from "../types/questao";
 
 export default function AvaliacoesFesta() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { listarPorFesta, loading: loadingAvaliacoes } = useAvaliacao();
   const { buscarPorId, loading: loadingFesta } = useFesta();
+  const { listarTodas, questoes, loading: loadingQuestoes } = useQuestao();
 
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
   const [festa, setFesta] = useState<Festa | null>(null);
 
+  // Criar mapa de questões para acesso rápido
+  const questoesMap = useMemo(() => {
+    const map = new Map<number, Questao>();
+    questoes.forEach(q => map.set(q.idQuestao || 0, q));
+    return map;
+  }, [questoes]);
+
   useEffect(() => {
     const carregarDados = async () => {
       if (id) {
-        const festaData = await buscarPorId(Number.parseInt(id));
+        listarTodas(); // Dispara busca de questões
+        
+        const [festaData, avaliacoesData] = await Promise.all([
+          buscarPorId(Number.parseInt(id)),
+          listarPorFesta(Number.parseInt(id)),
+        ]);
+        
         setFesta(festaData);
-
-        const avaliacoesData = await listarPorFesta(Number.parseInt(id));
         setAvaliacoes(avaliacoesData);
       }
     };
@@ -44,29 +57,27 @@ export default function AvaliacoesFesta() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const calcularMedia = (campo: keyof Avaliacao) => {
+  const calcularMediaGeral = () => {
     if (avaliacoes.length === 0) return 0;
-    const soma = avaliacoes.reduce((acc, av) => acc + (av[campo] as number), 0);
-    return (soma / avaliacoes.length).toFixed(1);
+    
+    // Coleta todas as respostas do tipo NOTA
+    let somaNotas = 0;
+    let quantidadeNotas = 0;
+
+    avaliacoes.forEach(avaliacao => {
+      avaliacao.respostas.forEach(resposta => {
+        const questao = questoesMap.get(resposta.idQuestao);
+        if (questao?.tipo === 'NOTA' && resposta.valorNumerico !== undefined) {
+          somaNotas += Number(resposta.valorNumerico);
+          quantidadeNotas++;
+        }
+      });
+    });
+
+    return quantidadeNotas > 0 ? (somaNotas / quantidadeNotas).toFixed(1) : "0.0";
   };
 
-  const mediaGeral = () => {
-    if (avaliacoes.length === 0) return 0;
-    const campos: (keyof Avaliacao)[] = [
-      "notaDJs",
-      "notaBebidas",
-      "notaBanheiros",
-      "notaLocal",
-      "notaOrganizacao",
-    ];
-    const somaMedias = campos.reduce(
-      (acc, campo) => acc + Number.parseFloat(calcularMedia(campo)),
-      0
-    );
-    return (somaMedias / campos.length).toFixed(1);
-  };
-
-  if (loadingFesta || loadingAvaliacoes) {
+  if (loadingFesta || loadingAvaliacoes || loadingQuestoes) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
         <CircularProgress />
@@ -114,100 +125,18 @@ export default function AvaliacoesFesta() {
           </Box>
           <Box>
             <Typography variant="body2" color="text.secondary">
-              Média Geral
+              Média Geral (Todas as Questões)
             </Typography>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Typography variant="h4">{mediaGeral()}</Typography>
+              <Typography variant="h4">{calcularMediaGeral()}</Typography>
               <Rating
-                value={Number.parseFloat(mediaGeral())}
+                value={Number.parseFloat(calcularMediaGeral() as string)}
                 precision={0.1}
                 readOnly
               />
             </Box>
           </Box>
         </Box>
-      </Paper>
-
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          Médias por Categoria
-        </Typography>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Categoria</TableCell>
-                <TableCell align="center">Média</TableCell>
-                <TableCell align="center">Avaliação</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell>DJs</TableCell>
-                <TableCell align="center">{calcularMedia("notaDJs")}</TableCell>
-                <TableCell align="center">
-                  <Rating
-                    value={Number.parseFloat(calcularMedia("notaDJs"))}
-                    precision={0.1}
-                    readOnly
-                  />
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Bebidas</TableCell>
-                <TableCell align="center">
-                  {calcularMedia("notaBebidas")}
-                </TableCell>
-                <TableCell align="center">
-                  <Rating
-                    value={Number.parseFloat(calcularMedia("notaBebidas"))}
-                    precision={0.1}
-                    readOnly
-                  />
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Banheiros</TableCell>
-                <TableCell align="center">
-                  {calcularMedia("notaBanheiros")}
-                </TableCell>
-                <TableCell align="center">
-                  <Rating
-                    value={Number.parseFloat(calcularMedia("notaBanheiros"))}
-                    precision={0.1}
-                    readOnly
-                  />
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Local</TableCell>
-                <TableCell align="center">
-                  {calcularMedia("notaLocal")}
-                </TableCell>
-                <TableCell align="center">
-                  <Rating
-                    value={Number.parseFloat(calcularMedia("notaLocal"))}
-                    precision={0.1}
-                    readOnly
-                  />
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Organização</TableCell>
-                <TableCell align="center">
-                  {calcularMedia("notaOrganizacao")}
-                </TableCell>
-                <TableCell align="center">
-                  <Rating
-                    value={Number.parseFloat(calcularMedia("notaOrganizacao"))}
-                    precision={0.1}
-                    readOnly
-                  />
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
       </Paper>
 
       <Paper sx={{ p: 3 }}>
@@ -226,67 +155,45 @@ export default function AvaliacoesFesta() {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>DJs</TableCell>
-                  <TableCell>Bebidas</TableCell>
-                  <TableCell>Banheiros</TableCell>
-                  <TableCell>Local</TableCell>
-                  <TableCell>Organização</TableCell>
-                  <TableCell>Média</TableCell>
-                  <TableCell>Comentário</TableCell>
+                  <TableCell>Aluno (Matrícula)</TableCell>
+                  <TableCell>Comentário Geral</TableCell>
+                  <TableCell align="center">Respostas</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {avaliacoes.map((avaliacao, index) => {
-                  const media =
-                    (avaliacao.notaDJs +
-                      avaliacao.notaBebidas +
-                      avaliacao.notaBanheiros +
-                      avaliacao.notaLocal +
-                      avaliacao.notaOrganizacao) /
-                    5;
-
-                  return (
-                    <TableRow key={index}>
-                      <TableCell>
-                        <Chip label={avaliacao.notaDJs} size="small" />
-                      </TableCell>
-                      <TableCell>
-                        <Chip label={avaliacao.notaBebidas} size="small" />
-                      </TableCell>
-                      <TableCell>
-                        <Chip label={avaliacao.notaBanheiros} size="small" />
-                      </TableCell>
-                      <TableCell>
-                        <Chip label={avaliacao.notaLocal} size="small" />
-                      </TableCell>
-                      <TableCell>
-                        <Chip label={avaliacao.notaOrganizacao} size="small" />
-                      </TableCell>
-                      <TableCell>
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
-                          <Typography variant="body2">
-                            {media.toFixed(1)}
-                          </Typography>
-                          <Rating
-                            value={media}
-                            precision={0.1}
-                            readOnly
-                            size="small"
-                          />
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        {avaliacao.comentario || (
-                          <Typography variant="body2" color="text.secondary">
-                            Sem comentário
-                          </Typography>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                {avaliacoes.map((avaliacao, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      {avaliacao.matriculaAluno}
+                    </TableCell>
+                    <TableCell>
+                      {avaliacao.comentarioGeral || (
+                        <Typography variant="body2" color="text.secondary">
+                          Sem comentário
+                        </Typography>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Box display="flex" flexDirection="column" gap={1}>
+                        {avaliacao.respostas.map((resp, idx) => {
+                          const questao = questoesMap.get(resp.idQuestao);
+                          return (
+                            <Box key={idx} display="flex" justifyContent="space-between" alignItems="center" sx={{ borderBottom: '1px solid #eee', pb: 0.5 }}>
+                               <Typography variant="caption" sx={{ fontWeight: 'bold', mr: 2 }}>
+                                 {questao?.enunciado || `Questão ${resp.idQuestao}`}:
+                               </Typography>
+                               {questao?.tipo === 'NOTA' ? (
+                                 <Rating value={Number(resp.valorNumerico)} readOnly size="small" />
+                               ) : (
+                                 <Typography variant="body2">{resp.valorTexto || resp.valorNumerico}</Typography>
+                               )}
+                            </Box>
+                          );
+                        })}
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </TableContainer>

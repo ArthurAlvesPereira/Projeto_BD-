@@ -55,12 +55,45 @@ export const useFesta = () => {
     try {
       setLoading(true);
       setError(null);
-      await api.post("/festas", festa, {
+
+      // Transformar IDs em objetos Questao para o backend
+      const payload = {
+        ...festa,
+        questoes: festa.questoesIds?.map((id) => ({ idQuestao: id })) || [],
+      };
+
+      console.log('Payload enviado para criar festa:', payload);
+
+      await api.post("/festas", payload, {
         params: { cnpjOrganizador },
       });
       return true;
     } catch (err) {
       setError("Erro ao criar festa");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const atualizar = async (
+    id: number,
+    festa: NovaFesta
+  ): Promise<boolean> => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Transformar IDs em objetos Questao para o backend
+      const payload = {
+        ...festa,
+        questoes: festa.questoesIds?.map((id) => ({ idQuestao: id })) || [],
+      };
+
+      await api.put(`/festas/${id}`, payload);
+      return true;
+    } catch (err) {
+      setError("Erro ao atualizar festa");
       return false;
     } finally {
       setLoading(false);
@@ -86,6 +119,7 @@ export const useFesta = () => {
     buscarPorId,
     buscarPorOrganizador,
     criar,
+    atualizar,
     deletar,
     loading,
     error,

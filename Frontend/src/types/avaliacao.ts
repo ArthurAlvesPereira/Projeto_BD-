@@ -1,17 +1,23 @@
+export interface Resposta {
+  idQuestao: number;
+  valorNumerico?: number;
+  valorTexto?: string;
+  // Opcional: para exibição
+  enunciado?: string;
+}
+
 export interface Avaliacao {
-  notaDJs: number;
-  notaBebidas: number;
-  notaBanheiros: number;
-  notaLocal: number;
-  notaOrganizacao: number;
-  comentario: string;
+  idAvaliacao?: number;
+  idFesta: number;
+  matriculaAluno: number;
+  comentarioGeral: string;
+  dataHoraAvaliacao?: string;
+  respostas: Resposta[];
 }
 
 export interface NovaAvaliacao {
-  notaDJs: number;
-  notaBebidas: number;
-  notaBanheiros: number;
-  notaLocal: number;
-  notaOrganizacao: number;
-  comentario: string;
+  idFesta?: number;
+  matriculaAluno?: number;
+  comentarioGeral: string;
+  respostas: Resposta[];
 }

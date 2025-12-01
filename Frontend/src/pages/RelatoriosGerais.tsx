@@ -18,14 +18,17 @@ import {
   Tab,
   Divider,
 } from "@mui/material";
+import { LineChart } from "@mui/x-charts/LineChart";
 import {
   EmojiEvents,
   School,
-  BarChart,
+  BarChart as BarChartIcon,
   Category,
-  TrendingUp,
   People,
+  Timeline,
 } from "@mui/icons-material";
+import { BarChart } from "@mui/x-charts/BarChart";
+import { PieChart } from "@mui/x-charts/PieChart";
 import { useRelatorio } from "../hooks/useRelatorio";
 import type {
   RankingFesta,
@@ -33,6 +36,7 @@ import type {
   DistribuicaoCursos,
   ComparacaoCategoria,
   EstatisticaTipoFesta,
+  TendenciaTemporal,
 } from "../types/relatorio";
 
 export default function RelatoriosGerais() {
@@ -42,6 +46,7 @@ export default function RelatoriosGerais() {
     obterDistribuicaoCursos,
     obterComparacaoCategorias,
     obterEstatisticasTipoFesta,
+    obterTendenciaTemporal,
   } = useRelatorio();
 
   const [tabValue, setTabValue] = useState(0);
@@ -61,19 +66,23 @@ export default function RelatoriosGerais() {
   const [estatisticasTipoFesta, setEstatisticasTipoFesta] = useState<
     EstatisticaTipoFesta[]
   >([]);
+  const [tendenciaTemporal, setTendenciaTemporal] = useState<
+    TendenciaTemporal[]
+  >([]);
 
   useEffect(() => {
     const carregarDados = async () => {
       try {
         setLoading(true);
 
-        const [festas, atleticas, cursos, categorias, tipos] =
+        const [festas, atleticas, cursos, categorias, tipos, tendencia] =
           await Promise.all([
             obterRankingFestas(20),
             obterRankingAtleticas(),
             obterDistribuicaoCursos(),
             obterComparacaoCategorias(),
             obterEstatisticasTipoFesta(),
+            obterTendenciaTemporal(),
           ]);
 
         setRankingFestas(festas);
@@ -81,6 +90,7 @@ export default function RelatoriosGerais() {
         setDistribuicaoCursos(cursos);
         setComparacaoCategorias(categorias);
         setEstatisticasTipoFesta(tipos);
+        setTendenciaTemporal(tendencia);
       } catch (error) {
         console.error("Erro ao carregar relatórios gerais:", error);
       } finally {
@@ -98,17 +108,22 @@ export default function RelatoriosGerais() {
     festa.titulo || festa.nome || "";
   const obterMediaGeral = (item: RankingFesta | RankingAtletica) =>
     item.mediaGeral || item.mediageral || 0;
+  
   const obterTotalAvaliacoes = (
     item: RankingFesta | RankingAtletica | DistribuicaoCursos
   ) => {
-    if ("totalAvaliacoes" in item || "totalavaliacoes" in item) {
-      return item.totalAvaliacoes || item.totalavaliacoes || 0;
+    if ("totalAvaliacoes" in item && item.totalAvaliacoes !== undefined) {
+      return item.totalAvaliacoes;
     }
-    if ("quantidadeAvaliacoes" in item) {
-      return item.quantidadeAvaliacoes || 0;
+    if ("totalavaliacoes" in item && item.totalavaliacoes !== undefined) {
+      return item.totalavaliacoes;
+    }
+    if ("quantidadeAvaliacoes" in item && item.quantidadeAvaliacoes !== undefined) {
+      return item.quantidadeAvaliacoes;
     }
     return 0;
   };
+
   const obterTotalFestas = (atletica: RankingAtletica) =>
     atletica.totalFestas || atletica.totalfestasrealizadas || 0;
   const obterNomeCurso = (curso: DistribuicaoCursos) =>
@@ -128,6 +143,13 @@ export default function RelatoriosGerais() {
     tipo.mediaGeral || tipo.mediageral || 0;
   const obterTotalAvaliacoesTipo = (tipo: EstatisticaTipoFesta) =>
     tipo.totalAvaliacoes || tipo.totalavaliacoes || 0;
+
+  const obterMes = (item: TendenciaTemporal) => {
+    if (!item.mes) return "";
+    const data = new Date(item.mes);
+    return data.toLocaleDateString("pt-BR", { month: "short", year: "numeric" });
+  };
+  const obterMediaTemporal = (item: TendenciaTemporal) => item.mediaGeral || item.mediageral || 0;
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -160,8 +182,9 @@ export default function RelatoriosGerais() {
           <Tab icon={<EmojiEvents />} label="Ranking de Festas" />
           <Tab icon={<People />} label="Ranking de Atléticas" />
           <Tab icon={<School />} label="Distribuição por Curso" />
-          <Tab icon={<BarChart />} label="Comparação de Categorias" />
+          <Tab icon={<BarChartIcon />} label="Comparação de Categorias" />
           <Tab icon={<Category />} label="Tipos de Festa" />
+          <Tab icon={<Timeline />} label="Evolução Temporal" />
         </Tabs>
       </Paper>
 
@@ -305,7 +328,29 @@ export default function RelatoriosGerais() {
             </Typography>
           ) : (
             <Grid container spacing={3}>
-              <Grid size={{ xs: 12, md: 8 }}>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Box height={300} width="100%">
+                  <PieChart
+                    series={[
+                      {
+                        data: distribuicaoCursos.map((curso, index) => ({
+                          id: index,
+                          value: obterTotalAvaliacoes(curso),
+                          label: obterNomeCurso(curso),
+                        })),
+                        highlightScope: { fade: "global", highlight: "item" },
+                        faded: {
+                          innerRadius: 30,
+                          additionalRadius: -30,
+                          color: "gray",
+                        },
+                      },
+                    ]}
+                    height={300}
+                  />
+                </Box>
+              </Grid>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TableContainer>
                   <Table>
                     <TableHead>
@@ -342,30 +387,6 @@ export default function RelatoriosGerais() {
                   </Table>
                 </TableContainer>
               </Grid>
-              <Grid size={{ xs: 12, md: 4 }}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      Estatísticas
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Total de Cursos
-                    </Typography>
-                    <Typography variant="h4" gutterBottom>
-                      {distribuicaoCursos.length}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Total de Avaliações
-                    </Typography>
-                    <Typography variant="h4">
-                      {distribuicaoCursos.reduce(
-                        (acc, c) => acc + obterTotalAvaliacoes(c),
-                        0
-                      )}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
             </Grid>
           )}
         </Paper>
@@ -375,7 +396,7 @@ export default function RelatoriosGerais() {
       {tabValue === 3 && (
         <Paper sx={{ p: 3 }}>
           <Typography variant="h6" gutterBottom>
-            <BarChart sx={{ verticalAlign: "middle", mr: 1 }} />
+            <BarChartIcon sx={{ verticalAlign: "middle", mr: 1 }} />
             Análise Comparativa por Categoria
           </Typography>
           <Divider sx={{ mb: 2 }} />
@@ -384,38 +405,61 @@ export default function RelatoriosGerais() {
               Nenhuma categoria disponível
             </Typography>
           ) : (
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Categoria</TableCell>
-                    <TableCell align="center">Média Geral</TableCell>
-                    <TableCell>Melhor Festa</TableCell>
-                    <TableCell>Pior Festa</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {comparacaoCategorias.map((categoria, index) => (
-                    <TableRow key={categoria.categoria || `categoria-${index}`}>
-                      <TableCell>
-                        <Typography fontWeight="bold">
-                          {categoria.categoria}
-                        </Typography>
-                      </TableCell>
-                      <TableCell align="center">
-                        <Chip
-                          label={obterMediaCategoria(categoria).toFixed(2)}
-                          color="primary"
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>{obterMelhorFesta(categoria)}</TableCell>
-                      <TableCell>{obterPiorFesta(categoria)}</TableCell>
+            <Box>
+              <Box height={350} width="100%" mb={4}>
+                <BarChart
+                  dataset={comparacaoCategorias.map((cat) => ({
+                    categoria: cat.categoria,
+                    media: obterMediaCategoria(cat),
+                  }))}
+                  xAxis={[{ scaleType: "band", dataKey: "categoria" }]}
+                  series={[
+                    {
+                      dataKey: "media",
+                      label: "Média Geral",
+                      color: "#1976d2",
+                    },
+                  ]}
+                  yAxis={[{ min: 0, max: 10 }]}
+                  height={300}
+                />
+              </Box>
+
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Categoria</TableCell>
+                      <TableCell align="center">Média Geral</TableCell>
+                      <TableCell>Melhor Festa</TableCell>
+                      <TableCell>Pior Festa</TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                  </TableHead>
+                  <TableBody>
+                    {comparacaoCategorias.map((categoria, index) => (
+                      <TableRow
+                        key={categoria.categoria || `categoria-${index}`}
+                      >
+                        <TableCell>
+                          <Typography fontWeight="bold">
+                            {categoria.categoria}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="center">
+                          <Chip
+                            label={obterMediaCategoria(categoria).toFixed(2)}
+                            color="primary"
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>{obterMelhorFesta(categoria)}</TableCell>
+                        <TableCell>{obterPiorFesta(categoria)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
           )}
         </Paper>
       )}
@@ -434,6 +478,32 @@ export default function RelatoriosGerais() {
             </Typography>
           ) : (
             <Grid container spacing={3}>
+              <Grid size={{ xs: 12 }}>
+                <Box height={350} width="100%" mb={2}>
+                  <BarChart
+                    dataset={estatisticasTipoFesta.map((tipo) => ({
+                      tipo: obterTipoFesta(tipo),
+                      media: obterMediaTipo(tipo),
+                      quantidade: obterQuantidadeFestas(tipo),
+                    }))}
+                    xAxis={[{ scaleType: "band", dataKey: "tipo" }]}
+                    series={[
+                      {
+                        dataKey: "media",
+                        label: "Média Geral",
+                        color: "#2e7d32",
+                      },
+                      {
+                        dataKey: "quantidade",
+                        label: "Qtd. Festas",
+                        color: "#ed6c02",
+                      },
+                    ]}
+                    height={300}
+                  />
+                </Box>
+              </Grid>
+
               {estatisticasTipoFesta.map((tipo, index) => (
                 <Grid
                   size={{ xs: 12, sm: 6, md: 4 }}
@@ -476,6 +546,42 @@ export default function RelatoriosGerais() {
                 </Grid>
               ))}
             </Grid>
+          )}
+        </Paper>
+      )}
+
+      {/* Tab 5: Evolução Temporal */}
+      {tabValue === 5 && (
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            <Timeline sx={{ verticalAlign: "middle", mr: 1 }} />
+            Evolução Temporal das Avaliações
+          </Typography>
+          <Divider sx={{ mb: 2 }} />
+          {tendenciaTemporal.length === 0 ? (
+            <Typography color="text.secondary" align="center">
+              Dados insuficientes para análise temporal
+            </Typography>
+          ) : (
+            <Box height={400} width="100%">
+              <LineChart
+                dataset={tendenciaTemporal.map((item) => ({
+                  mes: obterMes(item),
+                  media: obterMediaTemporal(item),
+                }))}
+                xAxis={[{ scaleType: "point", dataKey: "mes" }]}
+                series={[
+                  {
+                    dataKey: "media",
+                    label: "Média Geral",
+                    color: "#9c27b0",
+                    area: true,
+                  },
+                ]}
+                yAxis={[{ min: 0, max: 10 }]}
+                height={350}
+              />
+            </Box>
           )}
         </Paper>
       )}

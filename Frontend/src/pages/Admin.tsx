@@ -60,7 +60,7 @@ export default function Admin() {
       ) : (
         <Grid container spacing={3}>
           {/* Atléticas */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography variant="h5" gutterBottom>
               Atléticas ({atleticas.length})
             </Typography>
@@ -89,7 +89,7 @@ export default function Admin() {
           </Grid>
 
           {/* Cursos */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography variant="h5" gutterBottom>
               Cursos ({cursos.length})
             </Typography>
@@ -114,7 +114,7 @@ export default function Admin() {
           </Grid>
 
           {/* Alunos */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography variant="h5" gutterBottom>
               Alunos ({alunos.length})
             </Typography>

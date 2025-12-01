@@ -120,9 +120,8 @@ export const useRelatorio = () => {
     try {
       setLoading(true);
       setError(null);
-      // Adicionar ao service se ainda não existir
-      const response = await relatorioService.rankingFestas(limit); // placeholder
-      return response;
+      const data = await relatorioService.alunosAtivos(limit);
+      return data;
     } catch (err) {
       setError("Erro ao buscar alunos ativos");
       console.error(err);
@@ -136,9 +135,8 @@ export const useRelatorio = () => {
     try {
       setLoading(true);
       setError(null);
-      // Adicionar ao service se ainda não existir
-      const response = await relatorioService.rankingFestas(); // placeholder
-      return response;
+      const data = await relatorioService.tendenciaTemporal();
+      return data;
     } catch (err) {
       setError("Erro ao buscar tendência temporal");
       console.error(err);
@@ -154,9 +152,8 @@ export const useRelatorio = () => {
     try {
       setLoading(true);
       setError(null);
-      // Adicionar ao service se ainda não existir
-      const response = await relatorioService.rankingFestas(limit); // placeholder
-      return response;
+      const data = await relatorioService.maiorParticipacao(limit);
+      return data;
     } catch (err) {
       setError("Erro ao buscar festas com maior participação");
       console.error(err);

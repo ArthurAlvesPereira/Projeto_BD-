@@ -17,6 +17,8 @@ import {
   Divider,
 } from "@mui/material";
 import { TrendingUp, EmojiEvents, Assessment, Star } from "@mui/icons-material";
+import { LineChart } from "@mui/x-charts/LineChart";
+import { BarChart } from "@mui/x-charts/BarChart";
 import { useAuthStore } from "../store/useAuthStore";
 import { useFesta } from "../hooks/useFesta";
 import { useRelatorio } from "../hooks/useRelatorio";
@@ -159,7 +161,7 @@ export default function RelatoriosIndividuais() {
       ...festa,
       stats: estatisticasFestas.get(festa.id),
     }))
-    .filter((f) => f.stats && obterTotalAvaliacoes(f.stats) > 0)
+    .filter((f) => f.stats && obterTotalAvaliacoes(f.stats!) > 0)
     .sort((a, b) => {
       const mediaA = a.stats ? obterMediaGeral(a.stats) : 0;
       const mediaB = b.stats ? obterMediaGeral(b.stats) : 0;
@@ -171,6 +173,18 @@ export default function RelatoriosIndividuais() {
     (f) => f.organizadorNome === atletica?.nome
   );
 
+  // Preparar dados para o gráfico de evolução temporal
+  const dadosEvolucao = minhasFestas
+    .map((festa) => ({
+      data: new Date(festa.horario),
+      nome: festa.nome,
+      media: estatisticasFestas.get(festa.id)
+        ? obterMediaGeral(estatisticasFestas.get(festa.id)!)
+        : 0,
+    }))
+    .filter((d) => d.media > 0)
+    .sort((a, b) => a.data.getTime() - b.data.getTime());
+
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
@@ -179,7 +193,7 @@ export default function RelatoriosIndividuais() {
 
       {/* Cards de Resumo */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardContent>
               <Box display="flex" alignItems="center" gap={2}>
@@ -195,7 +209,7 @@ export default function RelatoriosIndividuais() {
           </Card>
         </Grid>
 
-        <Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardContent>
               <Box display="flex" alignItems="center" gap={2}>
@@ -213,7 +227,7 @@ export default function RelatoriosIndividuais() {
           </Card>
         </Grid>
 
-        <Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardContent>
               <Box display="flex" alignItems="center" gap={2}>
@@ -229,7 +243,7 @@ export default function RelatoriosIndividuais() {
           </Card>
         </Grid>
 
-        <Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardContent>
               <Box display="flex" alignItems="center" gap={2}>
@@ -249,6 +263,40 @@ export default function RelatoriosIndividuais() {
           </Card>
         </Grid>
       </Grid>
+
+      {/* Gráfico de Evolução Temporal */}
+      {dadosEvolucao.length > 1 && (
+        <Paper sx={{ p: 3, mb: 4 }}>
+          <Typography variant="h6" gutterBottom>
+            <TrendingUp sx={{ verticalAlign: "middle", mr: 1 }} />
+            Evolução Temporal das Avaliações
+          </Typography>
+          <Divider sx={{ mb: 2 }} />
+          <Box height={300} width="100%">
+            <LineChart
+              xAxis={[
+                {
+                  data: dadosEvolucao.map((d) => d.data),
+                  scaleType: "time",
+                  valueFormatter: (date) =>
+                    date.toLocaleDateString("pt-BR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                    }),
+                },
+              ]}
+              series={[
+                {
+                  data: dadosEvolucao.map((d) => d.media),
+                  label: "Média Geral",
+                  color: "#1976d2",
+                },
+              ]}
+              height={300}
+            />
+          </Box>
+        </Paper>
+      )}
 
       {/* Minhas Festas Melhor Avaliadas */}
       {minhasFestasMelhorAvaliadas.length > 0 && (
@@ -288,11 +336,11 @@ export default function RelatoriosIndividuais() {
                       })}
                     </TableCell>
                     <TableCell align="center">
-                      {obterTotalAvaliacoes(festa.stats)}
+                      {obterTotalAvaliacoes(festa.stats!)}
                     </TableCell>
                     <TableCell align="center">
                       <Chip
-                        label={obterMediaGeral(festa.stats).toFixed(2)}
+                        label={obterMediaGeral(festa.stats!).toFixed(2)}
                         color="success"
                         size="small"
                       />
@@ -313,7 +361,7 @@ export default function RelatoriosIndividuais() {
             if (!stats || obterTotalAvaliacoes(stats) === 0) return null;
 
             return (
-              <Grid item key={festa.id}>
+              <Grid size={{ xs: 12 }} key={festa.id}>
                 <Paper sx={{ p: 3 }}>
                   <Typography variant="h6" gutterBottom>
                     {festa.nome}
@@ -335,73 +383,47 @@ export default function RelatoriosIndividuais() {
                   <Divider sx={{ my: 2 }} />
 
                   <Grid container spacing={3}>
-                    <Grid>
+                    <Grid size={{ xs: 12, md: 6 }}>
                       <Typography variant="subtitle2" gutterBottom>
                         Avaliações por Categoria
                       </Typography>
-                      <TableContainer>
-                        <Table size="small">
-                          <TableBody>
-                            <TableRow>
-                              <TableCell>Organização</TableCell>
-                              <TableCell align="right">
-                                <Chip
-                                  label={obterMediaOrganizacao(stats).toFixed(
-                                    2
-                                  )}
-                                  size="small"
-                                  color="primary"
-                                />
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell>DJs/Diversão</TableCell>
-                              <TableCell align="right">
-                                <Chip
-                                  label={obterMediaDiversao(stats).toFixed(2)}
-                                  size="small"
-                                  color="primary"
-                                />
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell>Bebidas/Preço</TableCell>
-                              <TableCell align="right">
-                                <Chip
-                                  label={obterMediaPreco(stats).toFixed(2)}
-                                  size="small"
-                                  color="primary"
-                                />
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell>Localização</TableCell>
-                              <TableCell align="right">
-                                <Chip
-                                  label={obterMediaLocalizacao(stats).toFixed(
-                                    2
-                                  )}
-                                  size="small"
-                                  color="primary"
-                                />
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell>Banheiros/Segurança</TableCell>
-                              <TableCell align="right">
-                                <Chip
-                                  label={obterMediaSeguranca(stats).toFixed(2)}
-                                  size="small"
-                                  color="primary"
-                                />
-                              </TableCell>
-                            </TableRow>
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
+                      <Box height={250} width="100%">
+                        <BarChart
+                          layout="horizontal"
+                          dataset={[
+                            {
+                              cat: "Organização",
+                              val: obterMediaOrganizacao(stats),
+                            },
+                            {
+                              cat: "DJs/Diversão",
+                              val: obterMediaDiversao(stats),
+                            },
+                            {
+                              cat: "Bebidas/Preço",
+                              val: obterMediaPreco(stats),
+                            },
+                            {
+                              cat: "Localização",
+                              val: obterMediaLocalizacao(stats),
+                            },
+                            {
+                              cat: "Segurança",
+                              val: obterMediaSeguranca(stats),
+                            },
+                          ]}
+                          yAxis={[
+                            { scaleType: "band", dataKey: "cat", reverse: true },
+                          ]}
+                          series={[{ dataKey: "val", color: "#1976d2" }]}
+                          xAxis={[{ min: 0, max: 10 }]}
+                          height={250}
+                          margin={{ left: 100 }}
+                        />
+                      </Box>
                     </Grid>
 
-                    <Grid>
+                    <Grid size={{ xs: 12, md: 6 }}>
                       <Typography variant="subtitle2" gutterBottom>
                         Participação por Curso
                       </Typography>

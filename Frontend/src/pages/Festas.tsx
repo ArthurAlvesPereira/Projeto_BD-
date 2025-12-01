@@ -2,14 +2,18 @@ import { useEffect, useState } from "react";
 import { Box, Typography, Grid, Tabs, Tab, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useFesta } from "../hooks/useFesta";
+import { useAuthStore } from "../store/useAuthStore";
 import type { Festa } from "../types/festa";
 import FestaCard from "../components/FestaCard";
 
 export default function Festas() {
   const navigate = useNavigate();
   const { listarTodas, loading } = useFesta();
+  const { userType } = useAuthStore();
   const [festas, setFestas] = useState<Festa[]>([]);
   const [tabValue, setTabValue] = useState(0);
+
+  const tipoUsuario = userType === "atletica" ? "atletica" : "aluno";
 
   useEffect(() => {
     const carregarFestas = async () => {
@@ -67,12 +71,14 @@ export default function Festas() {
       ) : (
         <Grid container spacing={3}>
           {festasFiltradas.map((festa) => (
-            <Grid key={festa.id}>
+            <Grid key={festa.id} size={{ xs: 12, sm: 6, md: 4 }}>
               <FestaCard
                 festa={festa}
-                tipoUsuario="aluno"
+                tipoUsuario={tipoUsuario}
                 onVerDetalhes={(id) => navigate(`/festas/${id}`)}
                 onAvaliar={(id) => navigate(`/festas/${id}/avaliar`)}
+                onEditar={(id) => navigate(`/festas/${id}/editar`)}
+                onVerAvaliacoes={(id) => navigate(`/festas/${id}/avaliacoes`)}
               />
             </Grid>
           ))}

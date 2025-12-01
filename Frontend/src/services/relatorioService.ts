@@ -32,4 +32,23 @@ export const relatorioService = {
     const response = await api.get("/relatorios/tipo-festa");
     return response.data;
   },
+
+  async tendenciaTemporal() {
+    const response = await api.get("/relatorios/tendencia-temporal");
+    return response.data;
+  },
+
+  async alunosAtivos(limit: number = 10) {
+    const response = await api.get("/relatorios/alunos-ativos", {
+      params: { limit },
+    });
+    return response.data;
+  },
+
+  async maiorParticipacao(limit: number = 10) {
+    const response = await api.get("/relatorios/maior-participacao", {
+      params: { limit },
+    });
+    return response.data;
+  },
 };
