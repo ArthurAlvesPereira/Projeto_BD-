@@ -24,12 +24,15 @@ import type { TipoQuestao } from "../types/questao";
 
 export default function AdminQuestoes() {
   const { questoes, loading, listarTodas, criar, excluir } = useQuestao();
-  
+
   const [novaQuestao, setNovaQuestao] = useState({
     enunciado: "",
     tipo: "NOTA" as TipoQuestao,
   });
-  const [msg, setMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [msg, setMsg] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   useEffect(() => {
     listarTodas();
@@ -70,7 +73,7 @@ export default function AdminQuestoes() {
         <Typography variant="h6" gutterBottom>
           Nova Questão
         </Typography>
-        
+
         {msg && (
           <Alert severity={msg.type} sx={{ mb: 2 }}>
             {msg.text}
@@ -94,12 +97,16 @@ export default function AdminQuestoes() {
                 value={novaQuestao.tipo}
                 label="Tipo"
                 onChange={(e) =>
-                  setNovaQuestao({ ...novaQuestao, tipo: e.target.value as TipoQuestao })
+                  setNovaQuestao({
+                    ...novaQuestao,
+                    tipo: e.target.value as TipoQuestao,
+                  })
                 }
               >
                 <MenuItem value="NOTA">Nota (1-10)</MenuItem>
                 <MenuItem value="TEXTO">Texto Livre</MenuItem>
                 <MenuItem value="MULTIPLA_ESCOLHA">Múltipla Escolha</MenuItem>
+                <MenuItem value="BOOLEANO">Sim/Não</MenuItem>
               </Select>
             </FormControl>
             <Button
@@ -131,7 +138,10 @@ export default function AdminQuestoes() {
                 <TableCell>{q.enunciado}</TableCell>
                 <TableCell>{q.tipo}</TableCell>
                 <TableCell align="right">
-                  <IconButton color="error" onClick={() => handleExcluir(q.idQuestao)}>
+                  <IconButton
+                    color="error"
+                    onClick={() => handleExcluir(q.idQuestao)}
+                  >
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>

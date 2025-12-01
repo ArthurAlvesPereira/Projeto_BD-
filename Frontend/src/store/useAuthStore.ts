@@ -4,7 +4,6 @@ import { persist } from "zustand/middleware";
 interface Aluno {
   matricula: number;
   nome: string;
-  email: string;
   codigoCurso_FK: string;
 }
 

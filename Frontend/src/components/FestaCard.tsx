@@ -65,11 +65,6 @@ export default function FestaCard({
       <CardActions>
         {tipoUsuario === "aluno" ? (
           <>
-            {onVerDetalhes && (
-              <Button size="small" onClick={() => onVerDetalhes(festa.id)}>
-                Ver Detalhes
-              </Button>
-            )}
             {onAvaliar && (
               <Button
                 size="small"

@@ -25,20 +25,20 @@ export default function Sidebar() {
   const alunoMenuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
     { text: "Festas", icon: <CelebrationIcon />, path: "/festas" },
-    {
-      text: "Minhas Avaliações",
-      icon: <RateReviewIcon />,
-      path: "/minhas-avaliacoes",
-    },
+    // {
+    //   text: "Minhas Avaliações",
+    //   icon: <RateReviewIcon />,
+    //   path: "/minhas-avaliacoes",
+    // },
   ];
 
   const atleticaMenuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
-    {
-      text: "Minhas Festas",
-      icon: <CelebrationIcon />,
-      path: "/minhas-festas",
-    },
+    // {
+    //   text: "Minhas Festas",
+    //   icon: <CelebrationIcon />,
+    //   path: "/minhas-festas",
+    // },
     { text: "Nova Festa", icon: <AddCircleIcon />, path: "/nova-festa" },
     { text: "Relatórios", icon: <AssessmentIcon />, path: "/relatorios" },
   ];

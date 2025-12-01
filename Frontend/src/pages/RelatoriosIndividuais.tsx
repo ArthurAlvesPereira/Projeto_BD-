@@ -16,7 +16,7 @@ import {
   Chip,
   Divider,
 } from "@mui/material";
-import { TrendingUp, EmojiEvents, Assessment, Star } from "@mui/icons-material";
+import { TrendingUp, EmojiEvents, Assessment } from "@mui/icons-material";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { useAuthStore } from "../store/useAuthStore";
@@ -170,7 +170,7 @@ export default function RelatoriosIndividuais() {
     .slice(0, 5);
 
   const minhaPosicaoNoRanking = rankingGeral.findIndex(
-    (f) => f.organizadorNome === atletica?.nome
+    (f) => f.organizadornome === atletica?.nome
   );
 
   // Preparar dados para o gráfico de evolução temporal
@@ -231,7 +231,6 @@ export default function RelatoriosIndividuais() {
           <Card>
             <CardContent>
               <Box display="flex" alignItems="center" gap={2}>
-                <Star color="warning" fontSize="large" />
                 <Box>
                   <Typography color="text.secondary" variant="body2">
                     Média Geral
@@ -298,11 +297,9 @@ export default function RelatoriosIndividuais() {
         </Paper>
       )}
 
-      {/* Minhas Festas Melhor Avaliadas */}
       {minhasFestasMelhorAvaliadas.length > 0 && (
         <Paper sx={{ p: 3, mb: 4 }}>
           <Typography variant="h6" gutterBottom>
-            <Star sx={{ verticalAlign: "middle", mr: 1 }} />
             Minhas Festas Melhor Avaliadas
           </Typography>
           <Divider sx={{ mb: 2 }} />
@@ -413,7 +410,11 @@ export default function RelatoriosIndividuais() {
                             },
                           ]}
                           yAxis={[
-                            { scaleType: "band", dataKey: "cat", reverse: true },
+                            {
+                              scaleType: "band",
+                              dataKey: "cat",
+                              reverse: true,
+                            },
                           ]}
                           series={[{ dataKey: "val", color: "#1976d2" }]}
                           xAxis={[{ min: 0, max: 10 }]}
@@ -476,8 +477,8 @@ export default function RelatoriosIndividuais() {
                     }}
                   >
                     <Typography variant="body2" fontWeight="bold">
-                      Média Geral: {obterMediaGeral(stats).toFixed(2)} ⭐ |
-                      Total de Avaliações: {obterTotalAvaliacoes(stats)}
+                      Média Geral: {obterMediaGeral(stats).toFixed(2)} | Total
+                      de Avaliações: {obterTotalAvaliacoes(stats)}
                     </Typography>
                   </Box>
                 </Paper>

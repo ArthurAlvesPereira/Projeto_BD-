@@ -18,6 +18,6 @@ public class OpenApiConfig {
                         .description("API para gerenciamento de festas, atléticas e avaliações de alunos")
                         .contact(new Contact()
                                 .name("Arthur")
-                                .email("arthur@example.com")));
+                                .url("https://github.com/ArthurAlvesPereira")));
     }
 }

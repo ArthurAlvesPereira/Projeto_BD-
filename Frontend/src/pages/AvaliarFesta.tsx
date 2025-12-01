@@ -10,6 +10,8 @@ import {
   Alert,
   CircularProgress,
   Divider,
+  ToggleButtonGroup,
+  ToggleButton,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAvaliacao } from "../hooks/useAvaliacao";
@@ -181,6 +183,30 @@ export default function AvaliarFesta() {
                       }
                       placeholder="Digite sua escolha"
                     />
+                  )}
+
+                  {questao.tipo === "BOOLEANO" && (
+                    <ToggleButtonGroup
+                      value={resposta.valorTexto || ""}
+                      exclusive
+                      onChange={(_, value) => {
+                        if (value !== null) {
+                          handleRespostaChange(
+                            questao.idQuestao,
+                            "valorTexto",
+                            value
+                          );
+                        }
+                      }}
+                      aria-label="resposta sim ou não"
+                    >
+                      <ToggleButton value="SIM" aria-label="sim">
+                        Sim
+                      </ToggleButton>
+                      <ToggleButton value="NAO" aria-label="não">
+                        Não
+                      </ToggleButton>
+                    </ToggleButtonGroup>
                   )}
                   <Divider sx={{ mt: 2 }} />
                 </Box>

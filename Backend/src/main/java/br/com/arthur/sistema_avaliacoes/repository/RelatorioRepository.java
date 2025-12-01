@@ -22,13 +22,16 @@ public class RelatorioRepository {
                 f.TipoFesta,
                 f.Local,
                 f.Horario,
+                a.Nome AS OrganizadorNome,
                 ROUND(AVG(r.Valor_Numerico), 2) AS MediaGeral,
                 COUNT(DISTINCT av.ID_Avaliacao) AS TotalAvaliacoes
             FROM Festa f
             INNER JOIN Avaliacao av ON f.ID_Festa = av.ID_Festa_FK
             INNER JOIN Resposta r ON av.ID_Avaliacao = r.ID_Avaliacao_FK
+            LEFT JOIN Festa_Organizador_Atletica foa ON f.ID_Festa = foa.ID_Festa_FK
+            LEFT JOIN Atletica a ON foa.CNPJ_Atletica_FK = a.CNPJ
             WHERE r.Valor_Numerico IS NOT NULL
-            GROUP BY f.ID_Festa, f.Nome, f.TipoFesta, f.Local, f.Horario
+            GROUP BY f.ID_Festa, f.Nome, f.TipoFesta, f.Local, f.Horario, a.Nome
             HAVING COUNT(DISTINCT av.ID_Avaliacao) >= 1
             ORDER BY MediaGeral DESC
             LIMIT ?
@@ -81,7 +84,7 @@ public class RelatorioRepository {
     public List<Map<String, Object>> distribuicaoAvaliacoesPorCurso() {
         String sql = """
             SELECT 
-                c.NomeCurso AS NomeCurso,
+                c.NomeCurso AS Curso,
                 COUNT(DISTINCT av.ID_Avaliacao) AS TotalAvaliacoes,
                 ROUND(AVG(r.Valor_Numerico), 2) AS MediaGeral
             FROM Avaliacao av

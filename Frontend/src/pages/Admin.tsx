@@ -124,7 +124,6 @@ export default function Admin() {
                   <TableRow>
                     <TableCell>Matrícula</TableCell>
                     <TableCell>Nome</TableCell>
-                    <TableCell>Email</TableCell>
                     <TableCell>Curso</TableCell>
                   </TableRow>
                 </TableHead>
@@ -133,7 +132,6 @@ export default function Admin() {
                     <TableRow key={aluno.matricula}>
                       <TableCell>{aluno.matricula}</TableCell>
                       <TableCell>{aluno.nome}</TableCell>
-                      <TableCell>{aluno.email}</TableCell>
                       <TableCell>{aluno.codigoCurso_FK}</TableCell>
                     </TableRow>
                   ))}

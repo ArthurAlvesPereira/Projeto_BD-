@@ -1,4 +1,4 @@
-export type TipoQuestao = 'NOTA' | 'TEXTO' | 'MULTIPLA_ESCOLHA';
+export type TipoQuestao = "NOTA" | "TEXTO" | "MULTIPLA_ESCOLHA" | "BOOLEANO";
 
 export interface Questao {
   idQuestao: number;

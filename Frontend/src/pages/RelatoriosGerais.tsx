@@ -108,7 +108,7 @@ export default function RelatoriosGerais() {
     festa.titulo || festa.nome || "";
   const obterMediaGeral = (item: RankingFesta | RankingAtletica) =>
     item.mediaGeral || item.mediageral || 0;
-  
+
   const obterTotalAvaliacoes = (
     item: RankingFesta | RankingAtletica | DistribuicaoCursos
   ) => {
@@ -118,7 +118,10 @@ export default function RelatoriosGerais() {
     if ("totalavaliacoes" in item && item.totalavaliacoes !== undefined) {
       return item.totalavaliacoes;
     }
-    if ("quantidadeAvaliacoes" in item && item.quantidadeAvaliacoes !== undefined) {
+    if (
+      "quantidadeAvaliacoes" in item &&
+      item.quantidadeAvaliacoes !== undefined
+    ) {
       return item.quantidadeAvaliacoes;
     }
     return 0;
@@ -147,9 +150,13 @@ export default function RelatoriosGerais() {
   const obterMes = (item: TendenciaTemporal) => {
     if (!item.mes) return "";
     const data = new Date(item.mes);
-    return data.toLocaleDateString("pt-BR", { month: "short", year: "numeric" });
+    return data.toLocaleDateString("pt-BR", {
+      month: "short",
+      year: "numeric",
+    });
   };
-  const obterMediaTemporal = (item: TendenciaTemporal) => item.mediaGeral || item.mediageral || 0;
+  const obterMediaTemporal = (item: TendenciaTemporal) =>
+    item.mediaGeral || item.mediageral || 0;
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -229,7 +236,7 @@ export default function RelatoriosGerais() {
                         />
                       </TableCell>
                       <TableCell>{obterNomeFesta(festa)}</TableCell>
-                      <TableCell>{festa.organizadorNome || "-"}</TableCell>
+                      <TableCell>{festa.organizadornome || "-"}</TableCell>
                       <TableCell align="center">
                         {obterTotalAvaliacoes(festa)}
                       </TableCell>

@@ -48,7 +48,7 @@ export interface RankingFesta {
   mediaGeral?: number;
   mediageral?: number;
   totalAvaliacoes?: number;
-  organizadorNome?: string;
+  organizadornome?: string;
   totalavaliacoes?: number;
 }
 
@@ -115,7 +115,7 @@ export interface TendenciaTemporal {
 export interface MaiorParticipacao {
   id: number;
   titulo: string;
-  organizadorNome: string;
+  organizadornome: string;
   totalAvaliacoes: number;
   mediaGeral: number;
 }
