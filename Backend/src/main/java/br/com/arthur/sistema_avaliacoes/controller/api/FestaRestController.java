@@ -64,6 +64,17 @@ public class FestaRestController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Operation(summary = "Atualizar festa", description = "Atualiza os dados de uma festa existente")
+    @ApiResponse(responseCode = "200", description = "Festa atualizada com sucesso")
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> atualizar(
+            @Parameter(description = "ID da festa") @PathVariable Integer id,
+            @Parameter(description = "Dados atualizados da festa") @RequestBody Festa festa) {
+        festa.setId(id);
+        festaRepository.atualizar(festa);
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "Deletar festa", description = "Remove uma festa do sistema")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Festa deletada com sucesso"),

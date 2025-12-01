@@ -65,34 +65,72 @@ public class FestaRepository {
 
     public List<Festa> listarTodas() {
         String sql = "SELECT * FROM Festa ORDER BY Horario ASC"; 
-        return jdbcTemplate.query(sql, new FestaRowMapper());
+        List<Festa> festas = jdbcTemplate.query(sql, new FestaRowMapper());
+        for (Festa festa : festas) {
+            carregarQuestoes(festa);
+        }
+        return festas;
     }
 
     public Festa findById(int idFesta) {
         String sql = "SELECT * FROM Festa WHERE ID_Festa = ?";
-        Festa festa = jdbcTemplate.queryForObject(sql, new FestaRowMapper(), idFesta);
-        
-        if (festa != null) {
-            String sqlQuestoes = "SELECT q.* FROM Questao q " +
-                                 "JOIN Festa_Questao fq ON q.ID_Questao = fq.ID_Questao_FK " +
-                                 "WHERE fq.ID_Festa_FK = ?";
-            List<Questao> questoes = jdbcTemplate.query(sqlQuestoes, (rs, rowNum) -> {
-                Questao q = new Questao();
-                q.setIdQuestao(rs.getInt("ID_Questao"));
-                q.setEnunciado(rs.getString("Enunciado"));
-                q.setTipo(rs.getString("Tipo"));
-                return q;
-            }, idFesta);
-            festa.setQuestoes(questoes);
+        try {
+            Festa festa = jdbcTemplate.queryForObject(sql, new FestaRowMapper(), idFesta);
+            if (festa != null) {
+                carregarQuestoes(festa);
+            }
+            return festa;
+        } catch (Exception e) {
+            return null;
         }
-        return festa;
+    }
+
+    private void carregarQuestoes(Festa festa) {
+        String sqlQuestoes = "SELECT q.* FROM Questao q " +
+                             "JOIN Festa_Questao fq ON q.ID_Questao = fq.ID_Questao_FK " +
+                             "WHERE fq.ID_Festa_FK = ?";
+        List<Questao> questoes = jdbcTemplate.query(sqlQuestoes, (rs, rowNum) -> {
+            Questao q = new Questao();
+            q.setIdQuestao(rs.getInt("ID_Questao"));
+            q.setEnunciado(rs.getString("Enunciado"));
+            q.setTipo(rs.getString("Tipo"));
+            return q;
+        }, festa.getId());
+        festa.setQuestoes(questoes);
     }
 
     public List<Festa> findByOrganizador(String cnpj) {
         String sql = "SELECT f.* FROM Festa f " +
                 "JOIN Festa_Organizador_Atletica foa ON f.ID_Festa = foa.ID_Festa_FK " +
                 "WHERE foa.CNPJ_Atletica_FK = ?";
-        return jdbcTemplate.query(sql, new FestaRowMapper(), cnpj);
+        List<Festa> festas = jdbcTemplate.query(sql, new FestaRowMapper(), cnpj);
+        for (Festa festa : festas) {
+            carregarQuestoes(festa);
+        }
+        return festas;
+    }
+
+    @Transactional
+    public void atualizar(Festa festa) {
+        String sqlFesta = "UPDATE Festa SET Nome = ?, Horario = ?, TipoFesta = ?, Local = ? WHERE ID_Festa = ?";
+        jdbcTemplate.update(sqlFesta, 
+            festa.getNome(), 
+            Timestamp.valueOf(festa.getHorario()), 
+            festa.getTipoFesta(), 
+            festa.getLocal(), 
+            festa.getId()
+        );
+
+        // Atualizar questões: remove todas e insere as novas
+        String sqlDeleteQuestoes = "DELETE FROM Festa_Questao WHERE ID_Festa_FK = ?";
+        jdbcTemplate.update(sqlDeleteQuestoes, festa.getId());
+
+        if (festa.getQuestoes() != null) {
+            String sqlInsertQuestao = "INSERT INTO Festa_Questao (ID_Festa_FK, ID_Questao_FK) VALUES (?, ?)";
+            for (Questao q : festa.getQuestoes()) {
+                jdbcTemplate.update(sqlInsertQuestao, festa.getId(), q.getIdQuestao());
+            }
+        }
     }
 
     public void deletar(int idFesta) {
