@@ -47,6 +47,7 @@ export interface RankingFesta {
   nome?: string;
   mediaGeral?: number;
   mediageral?: number;
+  mediageralfestas?: number;
   totalAvaliacoes?: number;
   organizadornome?: string;
   totalavaliacoes?: number;
@@ -58,6 +59,7 @@ export interface RankingAtletica {
   sigla?: string;
   mediaGeral?: number;
   mediageral?: number;
+  mediageralfestas?: number;
   totalFestas?: number;
   totalfestasrealizadas?: number;
   totalAvaliacoes?: number;
